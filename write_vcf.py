@@ -5,16 +5,12 @@ import os
 def write_vcf(inputs):
     #LOAD TABLES AND FIND SUBSET
     mt = hl.read_matrix_table(inputs['matrix_table'])
-    samples_table = hl.import_table(inputs['samples_table'], key='research_id')
     ancestry_table = hl.import_table(inputs['ancestry_table'], key='research_id')
     if inputs['ancestry'] is None or inputs['ancestry'].upper() == 'ALL':
         print("NO ANCESTRY FILTER APPLIED")
         print(f"ANCESTRY value provided: {inputs['ancestry']}")
-        match_table = samples_table
-    else:
-        match_table = samples_table.join(ancestry_table,how="inner")
-        match_table = match_table.filter(match_table.ancestry_pred == inputs['ancestry'])
-
+    match_table = ancestry_table
+    
     mt = mt.filter_cols(hl.is_defined(match_table[mt.s]))
     print(f"Filtering to {mt.count_cols()} samples")
 
@@ -26,16 +22,6 @@ def write_vcf(inputs):
     else:
         print(f"Filtering on {inputs['chr']}")
         mt = mt.filter_rows( (mt.locus.contig == inputs['chr']) )
-
-    #REMOVE MULTIALLELIC
-    mt = mt.filter_rows(~mt.was_split)
-
-    #HAS GT
-    mt = mt.filter_rows(hl.agg.any(hl.is_defined(mt.GT)))
-
-    #Checkpoint for initial filtering
-    print("First Checkpoint:", flush=True)
-    mt = mt.checkpoint(f"{inputs['cloud_checkpoint_dir']}/filtered.mt", overwrite=True)
     
     #ONLY CONTAINS PASS IN FT
     #IF FT is not pass, set to 0,0
@@ -54,10 +40,6 @@ def write_vcf(inputs):
     
     #OVERWRITE TOTAL POPULATION INFO WITH SUBPOPULATION INFO
     mt = mt.annotate_rows( info = hl.agg.call_stats(mt.GT, mt.alleles) )
-
-    #Checkpoint for qc stats
-    print("Second Checkpoint:", flush=True)
-    mt = mt.checkpoint(f"{inputs['cloud_checkpoint_dir']}/qc_stats.mt", overwrite=True)
     
     #95% of alleles called in the population
     mt = mt.filter_rows(mt.info.AN >= 0.95 * mt.count_cols() * 2)
@@ -88,42 +70,33 @@ def write_vcf(inputs):
 
     #FILTER BY MIN AC
     mt = mt.filter_rows(mt.info.AC >= inputs['MinimumAC_inclusive'])
-
-    #Checkpoint for second filter
-    print("Third Checkpoint:", flush=True)
-    mt = mt.checkpoint(f"{inputs['cloud_checkpoint_dir']}/second_filter.mt", overwrite=True)
-    
-    #mt.rows().show(n_rows=5)
     
     hl.export_vcf(mt, inputs['output_path'])
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument("--matrix_table", required=True)
-    parser.add_argument("--samples_table", required=True)
     parser.add_argument("--ancestry_table", required=True)
     parser.add_argument("--ancestry", required=True)
     parser.add_argument("--chr", required=True)
     parser.add_argument("--MinimumAC_inclusive", type=int, required=True)
     parser.add_argument("--output_path", required=True)
-    parser.add_argument("--cloud_checkpoint_dir", required=True)
 
     args = parser.parse_args()
 
     inputs = {
         'matrix_table': args.matrix_table,
-        'samples_table': args.samples_table,
         'ancestry_table': args.ancestry_table,
         'ancestry': args.ancestry,
         'chr': args.chr,
         'MinimumAC_inclusive': args.MinimumAC_inclusive,
         'output_path': args.output_path,
-        'cloud_checkpoint_dir': args.cloud_checkpoint_dir
     }
 
     hl.init(
         app_name='hail_job',
         master='local[*]',
+        tmp_dir='gs://fc-secure-b8771cfd-5455-4292-a720-8533eb501a93/hail-tmp/',
         spark_conf={
             'spark.executor.instances': '4',
             'spark.executor.cores': '8',
