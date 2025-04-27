@@ -16,13 +16,11 @@ workflow WriteVCFWorkflow {
     call WriteVCFTask {
         input:
             matrix_table = matrix_table,
-            samples_table = samples_table,
             ancestry_table = ancestry_table,
             ancestry = ancestry,
             chr = chr,
             MinimumAC_inclusive = MinimumAC_inclusive,
             output_path = output_path,
-            cloud_checkpoint_dir = cloud_checkpoint_dir
     }
 
     call plink2 {
