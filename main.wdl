@@ -141,6 +141,7 @@ task ComputeGenotypePCS {
             docker: "quay.io/jonnguye/genotype_pcs:micromamba"
             memory: "8G"
             cpu: 2
+            disks: "local-disk 500 SSD"
         }
     
         output {
