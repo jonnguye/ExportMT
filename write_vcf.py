@@ -69,7 +69,7 @@ def write_vcf(inputs):
     #FILTER BY MIN AC
     mt = mt.filter_rows(mt.info.AC >= inputs['MinimumAC_inclusive'])
     
-    hl.export_vcf(mt, inputs['output_path'])
+    hl.export_vcf(mt, f"{inputs['output_prefix']}.vcf.bgz")
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
@@ -77,7 +77,7 @@ if __name__ == "__main__":
     parser.add_argument("--samples_list", required=True)
     parser.add_argument("--chr", required=True)
     parser.add_argument("--MinimumAC_inclusive", type=int, required=True)
-    parser.add_argument("--output_path", required=True)
+    parser.add_argument("--output_prefix", required=True)
 
     args = parser.parse_args()
 
@@ -86,7 +86,7 @@ if __name__ == "__main__":
         'samples_list': args.samples_list,
         'chr': args.chr,
         'MinimumAC_inclusive': args.MinimumAC_inclusive,
-        'output_path': args.output_path,
+        'output_prefix': args.output_prefix,
     }
 
     hl.init(
