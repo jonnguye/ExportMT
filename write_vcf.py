@@ -5,14 +5,11 @@ import os
 def write_vcf(inputs):
     #LOAD TABLES AND FIND SUBSET
     mt = hl.read_matrix_table(inputs['matrix_table'])
-    ancestry_table = hl.import_table(inputs['ancestry_table'], key='research_id')
-    if inputs['ancestry'] is None or inputs['ancestry'].upper() == 'ALL':
-        print("NO ANCESTRY FILTER APPLIED")
-        print(f"ANCESTRY value provided: {inputs['ancestry']}")
-    match_table = ancestry_table
-    match_table = match_table.filter(match_table.ancestry_pred == inputs['ancestry'])
+    samples_table = hl.import_table(inputs['sample_list'], 
+                                 key='s',  
+                                 no_header=True)
     
-    mt = mt.filter_cols(hl.is_defined(match_table[mt.s]))
+    mt = mt.filter_cols(hl.is_defined(samples_table[mt.s]))
     print(f"Filtering to {mt.count_cols()} samples")
 
     #SELECT WHICH CHROMOSOME TO FILTER BY
@@ -77,8 +74,7 @@ def write_vcf(inputs):
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument("--matrix_table", required=True)
-    parser.add_argument("--ancestry_table", required=True)
-    parser.add_argument("--ancestry", required=True)
+    parser.add_argument("--samples_list", required=True)
     parser.add_argument("--chr", required=True)
     parser.add_argument("--MinimumAC_inclusive", type=int, required=True)
     parser.add_argument("--output_path", required=True)
@@ -87,8 +83,7 @@ if __name__ == "__main__":
 
     inputs = {
         'matrix_table': args.matrix_table,
-        'ancestry_table': args.ancestry_table,
-        'ancestry': args.ancestry,
+        'samples_list': args.samples_list,
         'chr': args.chr,
         'MinimumAC_inclusive': args.MinimumAC_inclusive,
         'output_path': args.output_path,
