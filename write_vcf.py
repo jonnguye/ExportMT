@@ -5,7 +5,7 @@ import os
 def write_vcf(inputs):
     #LOAD TABLES AND FIND SUBSET
     mt = hl.read_matrix_table(inputs['matrix_table'])
-    samples_table = hl.import_table(inputs['sample_list'], 
+    samples_table = hl.import_table(inputs['samples_list'], 
                                  key='s',  
                                  no_header=True)
     
