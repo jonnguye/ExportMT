@@ -7,8 +7,7 @@ def write_vcf(inputs):
     mt = hl.read_matrix_table(inputs['matrix_table'])
     samples_table = hl.import_table(inputs['samples_list'], no_header=True)
     #coerce first column to 's' in case the above fails
-    print(samples_table.describe(), flush=True)
-    samples_table = samples_table.rename({'0': 's'})
+    samples_table = samples_table.rename({'f0': 's'})
     
     mt = mt.filter_cols(hl.is_defined(samples_table[mt.s]))
     print(f"Filtering to {mt.count_cols()} samples")
