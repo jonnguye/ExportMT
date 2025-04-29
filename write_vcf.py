@@ -10,6 +10,7 @@ def write_vcf(inputs):
         print("NO ANCESTRY FILTER APPLIED")
         print(f"ANCESTRY value provided: {inputs['ancestry']}")
     match_table = ancestry_table
+    match_table = match_table.filter(match_table.ancestry_pred == inputs['ancestry'])
     
     mt = mt.filter_cols(hl.is_defined(match_table[mt.s]))
     print(f"Filtering to {mt.count_cols()} samples")
