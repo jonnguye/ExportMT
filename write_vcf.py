@@ -6,8 +6,8 @@ def write_vcf(inputs):
     #LOAD TABLES AND FIND SUBSET
     mt = hl.read_matrix_table(inputs['matrix_table'])
     samples_table = hl.import_table(inputs['samples_list'], no_header=True)
-    #coerce first column to 's' in case the above fails
     samples_table = samples_table.rename({'f0': 's'})
+    samples_table = samples_table.key_by('s')
     
     mt = mt.filter_cols(hl.is_defined(samples_table[mt.s]))
     print(f"Filtering to {mt.count_cols()} samples")
