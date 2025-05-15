@@ -163,6 +163,7 @@ task IndexVCF {
         docker: "quay.io/biocontainers/bcftools:1.21--h3a4d415_1"
         memory: "32G"
         cpu: 4
+        disks: "local-disk 100 SSD"
     }
 
     output {
