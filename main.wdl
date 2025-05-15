@@ -20,6 +20,11 @@ workflow WriteVCFWorkflow {
             output_prefix = output_prefix
     }
 
+    call IndexVCF {
+        input:
+            vcf_file = WriteVCFTask.output_vcf
+    }
+
     call plink2 {
         input:
             vcf_file = WriteVCFTask.output_vcf,
@@ -38,6 +43,7 @@ workflow WriteVCFWorkflow {
         File output_vcf = WriteVCFTask.output_vcf
         Array[File] plink_outputs = plink2.plink_outputs
         File genotype_pcs = ComputeGenotypePCS.output_tsv
+        File output_vcf_index = IndexVCF.vcf_index
     }
 }
 
@@ -141,5 +147,25 @@ task ComputeGenotypePCS {
 
     output {
         File output_tsv = "~{output_prefix}_genetic_PCs.tsv"
+    }
+}
+
+task IndexVCF {
+    input {
+        File vcf_file
+    }
+
+    command <<<
+        bcftools index -c --threads 4 "~{vcf_file}"
+        >>>
+    
+    runtime {
+        docker: "quay.io/biocontainers/bcftools:1.21--h3a4d415_1"
+        memory: "32G"
+        cpu: 4
+    }
+
+    output {
+        File vcf_index = "~{vcf_file}.csi"
     }
 }
