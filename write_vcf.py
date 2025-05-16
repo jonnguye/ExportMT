@@ -5,14 +5,11 @@ import os
 def write_vcf(inputs):
     #LOAD TABLES AND FIND SUBSET
     mt = hl.read_matrix_table(inputs['matrix_table'])
-    ancestry_table = hl.import_table(inputs['ancestry_table'], key='research_id')
-    if inputs['ancestry'] is None or inputs['ancestry'].upper() == 'ALL':
-        print("NO ANCESTRY FILTER APPLIED")
-        print(f"ANCESTRY value provided: {inputs['ancestry']}")
-    match_table = ancestry_table
-    match_table = match_table.filter(match_table.ancestry_pred == inputs['ancestry'])
+    samples_table = hl.import_table(inputs['samples_list'], no_header=True)
+    samples_table = samples_table.rename({'f0': 's'})
+    samples_table = samples_table.key_by('s')
     
-    mt = mt.filter_cols(hl.is_defined(match_table[mt.s]))
+    mt = mt.filter_cols(hl.is_defined(samples_table[mt.s]))
     print(f"Filtering to {mt.count_cols()} samples")
 
     #SELECT WHICH CHROMOSOME TO FILTER BY
@@ -72,26 +69,24 @@ def write_vcf(inputs):
     #FILTER BY MIN AC
     mt = mt.filter_rows(mt.info.AC >= inputs['MinimumAC_inclusive'])
     
-    hl.export_vcf(mt, inputs['output_path'])
+    hl.export_vcf(mt, f"{inputs['output_prefix']}.vcf.bgz")
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument("--matrix_table", required=True)
-    parser.add_argument("--ancestry_table", required=True)
-    parser.add_argument("--ancestry", required=True)
+    parser.add_argument("--samples_list", required=True)
     parser.add_argument("--chr", required=True)
     parser.add_argument("--MinimumAC_inclusive", type=int, required=True)
-    parser.add_argument("--output_path", required=True)
+    parser.add_argument("--output_prefix", required=True)
 
     args = parser.parse_args()
 
     inputs = {
         'matrix_table': args.matrix_table,
-        'ancestry_table': args.ancestry_table,
-        'ancestry': args.ancestry,
+        'samples_list': args.samples_list,
         'chr': args.chr,
         'MinimumAC_inclusive': args.MinimumAC_inclusive,
-        'output_path': args.output_path,
+        'output_prefix': args.output_prefix,
     }
 
     hl.init(
