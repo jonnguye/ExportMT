@@ -68,7 +68,7 @@ task WriteVCFTask {
         echo "Checking /cromwell_root directory:"
         ls -lah /cromwell_root
 
-        curl -O https://raw.githubusercontent.com/jonnguye/ExportMT/FilterBySamples/write_vcf.py
+        curl -O https://raw.githubusercontent.com/jonnguye/ExportMT/Superset/write_vcf.py
 
         python3 write_vcf.py \
             --matrix_table "~{matrix_table}" \
