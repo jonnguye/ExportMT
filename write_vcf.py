@@ -22,7 +22,7 @@ def write_vcf(inputs):
         mt = mt.filter_rows( (mt.locus.contig == inputs['chr']) )
     
     #ONLY CONTAINS PASS IN FT
-     mt = mt.filter_rows(~(hl.is_defined(mt.filters)))
+    mt = mt.filter_rows(~(hl.is_defined(mt.filters)))
 
     #Save total pop data
     mt = mt.annotate_rows(
