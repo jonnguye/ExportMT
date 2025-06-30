@@ -41,7 +41,9 @@ workflow WriteVCFWorkflow {
 
     output {
         File output_vcf = WriteVCFTask.output_vcf
-        Array[File] plink_outputs = plink2.plink_outputs
+        File plink_pgen = plink2.plink_pgen
+        File plink_psam = plink2.plink_psam
+        File plink_pvar = plink2.plink_pvar
         File genotype_pcs = ComputeGenotypePCS.output_tsv
         File output_vcf_index = IndexVCF.vcf_index
     }
