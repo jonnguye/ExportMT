@@ -121,9 +121,9 @@ task plink2 {
     }
 
     output {
-        File plink_pgen = "plink_output/*.pgen"
-        File plink_psam = "plink_output/*.psam"
-        File plink_pvar = "plink_output/*.pvar"
+        File plink_pgen = "plink_output/~{output_prefix}.pgen"
+        File plink_psam = "plink_output/~{output_prefix}.psam"
+        File plink_pvar = "plink_output/~{output_prefix}.pvar"
     }
 }
 
