@@ -119,7 +119,9 @@ task plink2 {
     }
 
     output {
-        Array[File] plink_outputs = glob("plink_output/*")
+        File plink_pgen = "plink_output/*.pgen"
+        File plink_psam = "plink_output/*.psam"
+        File plink_pvar = "plink_output/*.pvar"
     }
 }
 
