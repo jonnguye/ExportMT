@@ -117,7 +117,7 @@ task plink2 {
         docker: "quay.io/biocontainers/plink2:2.0.0a.6.9--h9948957_0"
         memory: "16G"
         cpu: 4
-        disks: "local-disk 100 SSD"
+        disks: "local-disk 500 SSD"
     }
 
     output {
@@ -167,7 +167,7 @@ task IndexVCF {
         docker: "quay.io/biocontainers/bcftools:1.21--h3a4d415_1"
         memory: "32G"
         cpu: 4
-        disks: "local-disk 100 SSD"
+        disks: "local-disk 500 SSD"
     }
 
     output {
