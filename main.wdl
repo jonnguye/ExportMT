@@ -39,6 +39,11 @@ workflow WriteVCFWorkflow {
             genotype_rscript = genotype_rscript
     }
 
+    call BcftoolsDosage {
+        input:
+            vcf_file = WriteVCFTask.output_vcf
+    }
+
     output {
         File output_vcf = WriteVCFTask.output_vcf
         File plink_pgen = plink2.plink_pgen
@@ -46,6 +51,8 @@ workflow WriteVCFWorkflow {
         File plink_pvar = plink2.plink_pvar
         File genotype_pcs = ComputeGenotypePCS.output_tsv
         File output_vcf_index = IndexVCF.vcf_index
+        File dosage = BcftoolsDosage.dosage
+        File dosage_index = BcftoolsDosage.dosage_index
     }
 }
 
@@ -200,6 +207,7 @@ task BcftoolsDosage {
     }
 
     output {
-        File vcf_index = "~{vcf_file}.tbi"
+        File dosage = "~{basename(vcf_file)}.dose.tsv.gz"
+        File dosage_index = "~{basename(vcf_file)}.dose.tsv.gz.tbi"
     }
 }
