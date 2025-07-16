@@ -160,7 +160,7 @@ task IndexVCF {
     }
 
     command <<<
-        bcftools index -c --threads 4 "~{vcf_file}"
+        bcftools index -t --threads 4 "~{vcf_file}"
         >>>
     
     runtime {
@@ -171,6 +171,35 @@ task IndexVCF {
     }
 
     output {
-        File vcf_index = "~{vcf_file}.csi"
+        File vcf_index = "~{vcf_file}.tbi"
+    }
+}
+
+task BcftoolsDosage {
+    input {
+        File vcf_file
+    }
+
+    command <<<
+        printf 'CHROM\\nPOS\\nREF\\nALT\\n' > 4_columns.tsv
+        bcftools query -l ~{vcf_file} > sample_list.tsv
+        cat 4_columns.tsv sample_list.tsv > header.tsv
+        csvtk transpose header.tsv -T | gzip > header_row.tsv.gz
+
+        #Extract dosage and merge
+        bcftools +dosage --threads 64 ~{vcf_file} -- -t GT | tail -n+2 | gzip > dose_matrix.tsv.gz
+        zcat header_row.tsv.gz dose_matrix.tsv.gz | bgzip > ~{basename(vcf_file)}.dose.tsv.gz
+        tabix -s1 -b2 -e2 -S1 ~{basename(vcf_file)}.dose.tsv.gz
+        >>>
+    
+    runtime {
+        docker: "quay.io/eqtlcatalogue/susie-finemapping:v20.08.1"
+        memory: "32G"
+        cpu: 64
+        disks: "local-disk 500 SSD"
+    }
+
+    output {
+        File vcf_index = "~{vcf_file}.tbi"
     }
 }
