@@ -190,7 +190,7 @@ task BcftoolsDosage {
     String vcf_basename = basename(vcf_file, ".vcf.gz")
 
     command <<<
-        printf 'CHROM\\nPOS\\nREF\\nALT\\n' > 4_columns.tsv
+        printf 'CHROM\nPOS\nREF\nALT\n' > 4_columns.tsv
         bcftools query -l ~{vcf_file} > sample_list.tsv
         cat 4_columns.tsv sample_list.tsv > header.tsv
         csvtk transpose header.tsv -T | gzip > header_row.tsv.gz
