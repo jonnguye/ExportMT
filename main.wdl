@@ -187,6 +187,8 @@ task BcftoolsDosage {
         File vcf_file
     }
 
+    String vcf_basename = basename(vcf_file, ".vcf.gz")
+
     command <<<
         printf 'CHROM\\nPOS\\nREF\\nALT\\n' > 4_columns.tsv
         bcftools query -l ~{vcf_file} > sample_list.tsv
@@ -195,8 +197,8 @@ task BcftoolsDosage {
 
         #Extract dosage and merge
         bcftools +dosage --threads 64 ~{vcf_file} -- -t GT | tail -n+2 | gzip > dose_matrix.tsv.gz
-        zcat header_row.tsv.gz dose_matrix.tsv.gz | bgzip > ~{basename(vcf_file)}.dose.tsv.gz
-        tabix -s1 -b2 -e2 -S1 ~{basename(vcf_file)}.dose.tsv.gz
+        zcat header_row.tsv.gz dose_matrix.tsv.gz | bgzip > ~{vcf_basename}.dose.tsv.gz
+        tabix -s1 -b2 -e2 -S1 ~{vcf_basename}.dose.tsv.gz
         >>>
     
     runtime {
