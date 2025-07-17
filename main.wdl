@@ -9,6 +9,7 @@ workflow WriteVCFWorkflow {
         Int new_id_max_allele_len = 271
         String output_prefix
         File genotype_rscript
+        Int dosage_threads
     }
 
     call WriteVCFTask {
@@ -42,6 +43,7 @@ workflow WriteVCFWorkflow {
     call BcftoolsDosage {
         input:
             vcf_file = WriteVCFTask.output_vcf
+            threads = dosage_threads
     }
 
     output {
@@ -205,7 +207,7 @@ task BcftoolsDosage {
     runtime {
         docker: "quay.io/eqtlcatalogue/susie-finemapping:v20.08.1"
         memory: "32G"
-        cpu: ~{threads}
+        cpu: "~{threads}"
         disks: "local-disk 500 SSD"
     }
 
