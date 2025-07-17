@@ -42,7 +42,7 @@ workflow WriteVCFWorkflow {
 
     call BcftoolsDosage {
         input:
-            vcf_file = WriteVCFTask.output_vcf
+            vcf_file = WriteVCFTask.output_vcf,
             threads = dosage_threads
     }
 
