@@ -185,6 +185,7 @@ task IndexVCF {
 task BcftoolsDosage {
     input {
         File vcf_file
+        Int threads
     }
 
     String vcf_basename = basename(vcf_file, ".vcf.gz")
@@ -196,7 +197,7 @@ task BcftoolsDosage {
         csvtk transpose header.tsv -T | gzip > header_row.tsv.gz
 
         #Extract dosage and merge
-        bcftools +dosage --threads 64 ~{vcf_file} -- -t GT | tail -n+2 | gzip > dose_matrix.tsv.gz
+        bcftools +dosage --threads ~{threads} ~{vcf_file} -- -t GT | tail -n+2 | gzip > dose_matrix.tsv.gz
         zcat header_row.tsv.gz dose_matrix.tsv.gz | bgzip > ~{vcf_basename}.dose.tsv.gz
         tabix -s1 -b2 -e2 -S1 ~{vcf_basename}.dose.tsv.gz
         >>>
@@ -204,7 +205,7 @@ task BcftoolsDosage {
     runtime {
         docker: "quay.io/eqtlcatalogue/susie-finemapping:v20.08.1"
         memory: "32G"
-        cpu: 64
+        cpu: ~{threads}
         disks: "local-disk 500 SSD"
     }
 
