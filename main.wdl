@@ -239,10 +239,7 @@ task plink2_afreq {
         ls
         echo "pwd"
         pwd
-        echo "cd"
-        cd plink_output
-        echo "ls plink_output"
-        plink2 --pfile ~{output_prefix} --freq --out ~{output_prefix}
+        plink2 --pfile plink_output/~{output_prefix} --freq --out ~{output_prefix}
         >>>
     
     runtime {
