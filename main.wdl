@@ -235,7 +235,7 @@ task plink2_afreq {
     }
 
     command <<<
-        plink2 --bfile ~{output_prefix} --freq --out ~{output_prefix}
+        plink2 --pfile ~{output_prefix} --freq --out ~{output_prefix}
         >>>
     
     runtime {
