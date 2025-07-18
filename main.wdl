@@ -59,7 +59,7 @@ workflow WriteVCFWorkflow {
         File plink_pgen = plink2.plink_pgen
         File plink_psam = plink2.plink_psam
         File plink_pvar = plink2.plink_pvar
-        File plink_afreq = plink2.plink_afreq
+        File plink_afreq = plink2_afreq.plink_afreq
         File genotype_pcs = ComputeGenotypePCS.output_tsv
         File output_vcf_index = IndexVCF.vcf_index
         File dosage = BcftoolsDosage.dosage
