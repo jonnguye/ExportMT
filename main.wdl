@@ -235,10 +235,12 @@ task plink2_afreq {
     }
 
     command <<<
-        echo "ls"
-        ls
-        echo "pwd"
-        pwd
+        realpath pgen
+        ls pgen
+        realpath psam
+        ls psam
+        realpath pvar
+        ls pvar
         plink2 --pfile plink_output/~{output_prefix} --freq --out ~{output_prefix}
         >>>
     
