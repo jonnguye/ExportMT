@@ -46,11 +46,20 @@ workflow WriteVCFWorkflow {
             threads = dosage_threads
     }
 
+    call plink2_afreq {
+        input:
+            pgen = plink2.plink_pgen,
+            psam = plink2.plink_psam,
+            pvar = plink2.plink_pvar, 
+            output_prefix = output_prefix
+    }
+
     output {
         File output_vcf = WriteVCFTask.output_vcf
         File plink_pgen = plink2.plink_pgen
         File plink_psam = plink2.plink_psam
         File plink_pvar = plink2.plink_pvar
+        File plink_afreq = plink2.plink_afreq
         File genotype_pcs = ComputeGenotypePCS.output_tsv
         File output_vcf_index = IndexVCF.vcf_index
         File dosage = BcftoolsDosage.dosage
@@ -214,5 +223,29 @@ task BcftoolsDosage {
     output {
         File dosage = "~{basename(vcf_file)}.dose.tsv.gz"
         File dosage_index = "~{basename(vcf_file)}.dose.tsv.gz.tbi"
+    }
+}
+
+task plink2_afreq {
+    input {
+        File pgen
+        File psam
+        File pvar
+        String output_prefix
+    }
+
+    command <<<
+        plink2 --bfile ~{output_prefix} --freq --out ~{output_prefix}
+        >>>
+    
+    runtime {
+        docker: "quay.io/biocontainers/plink2:2.0.0a.6.9--h9948957_0"
+        memory: "16G"
+        cpu: 4
+        disks: "local-disk 500 SSD"
+    }
+
+    output {
+        File plink_afreq = "~{output_prefix}.afreq"
     }
 }
