@@ -235,13 +235,11 @@ task plink2_afreq {
     }
 
     command <<<
-        realpath ~{pgen}
-        ls ~{pgen}
-        realpath ~{psam}
-        ls ~{psam}
-        realpath ~{pvar}
-        ls ~{pvar}
-        plink2 --pfile plink_output/~{output_prefix} --freq --out ~{output_prefix}
+        cp ~{pgen} .
+        cp ~{psam} .
+        cp ~{pvar} .
+        ls
+        plink2 --pfile ~{output_prefix} --freq --out ~{output_prefix}
         >>>
     
     runtime {
